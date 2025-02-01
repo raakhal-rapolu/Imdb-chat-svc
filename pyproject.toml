@@ -2,7 +2,7 @@
 name = "imdb-chatbot-svc"
 version = "0.1.0"
 description = ""
-authors = ["raakhal-rapolu <pandu3011@gmail.com>"]
+authors = ["raakhal-rapolu <raakhal.rapolu@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
@@ -29,5 +29,5 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.taskipy.tasks]
 imdb-svc-backend = { cmd = "python app.py" }
-imdb-svc-frontend = { cmd = "streamlit run streamlit_ui2.py" }
+imdb-svc-frontend = { cmd = "streamlit run streamlit_app.py" }
 

@@ -1,6 +1,7 @@
 import chromadb
 import pandas as pd
 from sentence_transformers import SentenceTransformer
+from utils.constants import EMBED_MODEL
 
 
 class ChromaDBHandler:
@@ -16,7 +17,7 @@ class ChromaDBHandler:
         if collection_name:
             self.collection = self.chroma_client.get_or_create_collection(name=collection_name)
 
-        self.embedding_model = SentenceTransformer("all-MiniLM-L6-v2")
+        self.embedding_model = SentenceTransformer(EMBED_MODEL)
 
     def load_and_process_csv(self, file_path):
 

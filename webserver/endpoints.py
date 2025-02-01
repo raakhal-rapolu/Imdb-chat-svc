@@ -9,7 +9,7 @@ import json
 import requests
 from chromadb_handler.chromadb_handler import ChromaDBHandler
 from utils.gemini_handler import GeminiLLMHandler
-
+from utils.constants import EMBED_MODEL, OLLAMA_URL
 from utils.groq_custom_llm import GroqLLMHandler
 from utils import prompt_reader
 
@@ -24,14 +24,14 @@ CHROMADB_PATH = os.getenv("CHROMADB_PATH")
 TMP_DIR = os.getenv("TMP_DIR")
 
 # Load sentence transformer model
-embedding_model = SentenceTransformer("all-MiniLM-L6-v2")
+embedding_model = SentenceTransformer(EMBED_MODEL)
 
 
 # Constants
 API_VERSION = '/api/v1'
 CATALOG_MODULE = '/imdb-chatbot-svc'
 CORE_PREFIX = CATALOG_MODULE + API_VERSION
-OLLAMA_URL = "http://localhost:11434/api/generate"
+
 
 blueprint = Blueprint('api', __name__, url_prefix=CORE_PREFIX)
 api.init_app(blueprint)

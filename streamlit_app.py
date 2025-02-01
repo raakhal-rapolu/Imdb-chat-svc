@@ -74,7 +74,7 @@ if st.button("Send 🎬"):
 
         try:
 
-            selected_model = st.session_state.get("model_selection", "Groq")
+            selected_model = st.session_state.get("model_selection", "Gemini")
             response = requests.post(
                 BACKEND_URL,
                 json={"message": user_input, "model": selected_model}

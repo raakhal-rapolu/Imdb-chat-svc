@@ -1,7 +1,7 @@
 import os
 import requests
 import json
-from utils.constants import gemini_url, gemini_api_key
+from utils.constants import gemini_api_key
 from google.generativeai.types import HarmCategory, HarmBlockThreshold
 import google.generativeai as genai
 
