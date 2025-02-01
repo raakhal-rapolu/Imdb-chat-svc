@@ -2,15 +2,12 @@ import chromadb
 
 from sentence_transformers import SentenceTransformer
 
-# Load sentence transformer model
 embedding_model = SentenceTransformer("all-MiniLM-L6-v2")
 
 
 
-# Initialize ChromaDB
 chroma_client = chromadb.PersistentClient(path="/home/raakhal-rapolu/PycharmProjects/imdb-chatbot-svc/chromadb_handler")
 
-# Create a collection
 collection = chroma_client.get_or_create_collection(name="imdb_chatbot")
 
 
@@ -22,7 +19,6 @@ def retrieve_movie(query, top_k=3):
     )
     return results
 
-# Example query
 query = "When did The Matrix release?"
 retrieved_results = retrieve_movie(query)
 

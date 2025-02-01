@@ -3,10 +3,11 @@ import requests
 
 # Define backend URLs for different models
 BACKEND_URLS = {
-    "Ollama": "http://127.0.0.1:5000/imdb-chatbot-svc/api/v1/imdb-chatbot-svc/imdb-chat",
-    "Groq": "http://127.0.0.1:5000/imdb-chatbot-svc/api/v1/imdb-chatbot-svc/groq-imdb-chat",
-    "Gemini": "http://127.0.0.1:5000/imdb-chatbot-svc/api/v1/imdb-chatbot-svc/gemini-imdb-chat"
+    "Ollama llama3.2 + RAG": "http://127.0.0.1:5000/imdb-chatbot-svc/api/v1/imdb-chatbot-svc/imdb-chat",
+    "Groq llama-3.3-70b-versatile + Hybrid Search + RAG": "http://127.0.0.1:5000/imdb-chatbot-svc/api/v1/imdb-chatbot-svc/groq-imdb-chat",
+    "Gemini gemini-1.5-pro + RAG": "http://127.0.0.1:5000/imdb-chatbot-svc/api/v1/imdb-chatbot-svc/gemini-imdb-chat"
 }
+
 
 st.set_page_config(page_title="IMDb Chatbot", page_icon="🎥", layout="centered")
 
@@ -74,7 +75,7 @@ for sender, message in st.session_state.messages:
         st.markdown(f"*{sender}:* {message}")
 
 # Model selection dropdown
-selected_model = st.selectbox("Select Model:", options=["Groq llama-3.3-70b-versatile", "Gemini gemini-1.5-pro", "Ollama llama3.2"], index=1, key="model_selection")
+selected_model = st.selectbox("Select Model:", options=["Groq llama-3.3-70b-versatile + Hybrid Search + RAG", "Gemini gemini-1.5-pro + RAG", "Ollama llama3.2 + RAG"], index=1, key="model_selection")
 
 # User input field
 user_input = st.text_input("You:", key="user_input", placeholder="Ask about movies, actors, or ratings...")
@@ -84,7 +85,7 @@ if st.button("Send 🎬"):
         st.session_state.messages.append(("You", user_input))
 
         # Get the API endpoint based on selected model
-        backend_url = BACKEND_URLS.get(selected_model, BACKEND_URLS["Gemini"])
+        backend_url = BACKEND_URLS.get(selected_model, BACKEND_URLS[selected_model])
 
         try:
             response = requests.post(

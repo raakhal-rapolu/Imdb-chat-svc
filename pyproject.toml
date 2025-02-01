@@ -21,6 +21,9 @@ llama-index-llms-groq = "^0.3.1"
 groq = "^0.16.0"
 sentence-transformers = "^3.4.1"
 google-generativeai = "^0.8.4"
+langchain = "^0.3.17"
+rank-bm25 = "^0.2.2"
+langchain-community = "^0.3.16"
 
 [build-system]
 requires = ["poetry-core"]

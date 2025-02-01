@@ -16,6 +16,8 @@ from utils.gemini_handler import GeminiLLMHandler
 from utils.groq_custom_llm import GroqLLMHandler
 from webserver.api_models import inference_chat_api, create_index_parser, delete_index_model, inference_api_model
 from webserver.extensions import api
+from utils.retrieval_handler import RetrievalHandler
+
 
 # Load sentence transformer model
 embedding_model = SentenceTransformer(EMBED_MODEL)
@@ -252,36 +254,19 @@ class GroqIMDBChatBot(Resource):
                     jsonify({"error": "Message field is required."}), 400
                 )
 
-            chroma_client = chromadb.PersistentClient(
-                path=chroma_path
-            )
-            collection = chroma_client.get_collection(name="imdb_chatbot")
+            # Use the hybrid RAG pipeline via RetrievalHandler.
+            retrieval_handler = RetrievalHandler()
+            # Perform the hybrid search on the user's message.
+            hybrid_results = retrieval_handler.hybrid_search(user_message)
 
-            query_embedding = embedding_model.encode(user_message).tolist()
-            results = collection.query(
-                query_embeddings=[query_embedding],
-                n_results=10
-            )
+            if not hybrid_results:
+                return make_response(
+                    jsonify({"response": "No relevant movies found."}),
+                    200
+                )
 
-            if not results["documents"] or not results["documents"][0]:
+            context = "\n\n".join([doc["combined"] for doc in hybrid_results])
 
-                return make_response(jsonify({"response": "No relevant movies found."}), 200)
-
-            context = "\n\n".join([
-                f"Title: {doc['title']}\n"
-                f"Year: {doc['year']}\n"
-                f"Certificate: {doc['certificate']}\n"
-                f"Runtime: {doc['runtime']}\n"
-                f"Genre: {doc['genre']}\n"
-                f"IMDB Rating: {doc['rating']}\n"
-                f"Overview: {doc['overview']}\n"
-                f"Meta Score: {doc['meta_score']}\n"
-                f"Director: {doc['director']}\n"
-                f"Stars: {(doc['stars'])}\n"
-                f"Number of Votes: {doc['votes']}\n"
-                f"Gross Revenue: {doc['gross']}"
-                for doc in results["metadatas"][0]
-            ])
 
             prompt = prompt_reader.load_prompts()["imdb_chat_prompt"].format(user_message=user_message, context=context)
 

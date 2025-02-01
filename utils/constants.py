@@ -1,4 +1,5 @@
 import os
+
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -14,4 +15,4 @@ EMBED_MODEL="all-MiniLM-L6-v2"
 
 ollama_url =os.environ["OLLAMA_URL"]
 
-
+RERANK_MODEL = "cross-encoder/ms-marco-MiniLM-L-6-v2"
