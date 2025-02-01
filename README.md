@@ -1,7 +1,7 @@
 # IMDB Chatbot Service
 
 ## Overview
-IMDB Chatbot Service is a **Gen AI-powered conversational bot** that leverages **IMDB movie data** to answer various movie-related queries. The bot uses **LLMs like OpenAI, Gemini, and Groq** to generate intelligent responses. It is built using **Flask** for the backend and **Streamlit** for the frontend.
+IMDB Chatbot Service is a **Gen AI-powered conversational bot** that leverages **IMDB movie data** to answer various movie-related queries. The bot uses **LLMs like Ollama (llama 3.2), Gemini (gemini-1.5-pro), and Groq(llama-3.3-70b-versatile)** to generate intelligent responses. It is built using **Flask** for the backend and **Streamlit** for the frontend.
 
 ## Features
 - **Conversational chatbot** to answer movie-related queries
