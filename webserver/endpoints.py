@@ -1,27 +1,21 @@
-from flask import jsonify, make_response, request
-import os
-from flask_restx import Resource, reqparse
-from webserver.api_models import inference_chat_api, create_index_parser, delete_index_model, inference_api_model
-from webserver.extensions import api
-from flask_swagger_ui import get_swaggerui_blueprint
-from flask import Blueprint
 import json
-import requests
-from chromadb_handler.chromadb_handler import ChromaDBHandler
-from utils.gemini_handler import GeminiLLMHandler
-from utils.constants import EMBED_MODEL, OLLAMA_URL
-from utils.groq_custom_llm import GroqLLMHandler
-from utils import prompt_reader
-
-
+import os
 
 import chromadb
-
+import requests
+from flask import Blueprint
+from flask import jsonify, make_response, request
+from flask_restx import Resource
+from flask_swagger_ui import get_swaggerui_blueprint
 from sentence_transformers import SentenceTransformer
 
-import os
-CHROMADB_PATH = os.getenv("CHROMADB_PATH")
-TMP_DIR = os.getenv("TMP_DIR")
+from chromadb_handler.chromadb_handler import ChromaDBHandler
+from utils import prompt_reader
+from utils.constants import EMBED_MODEL, ollama_url, temp_dir, chroma_path
+from utils.gemini_handler import GeminiLLMHandler
+from utils.groq_custom_llm import GroqLLMHandler
+from webserver.api_models import inference_chat_api, create_index_parser, delete_index_model, inference_api_model
+from webserver.extensions import api
 
 # Load sentence transformer model
 embedding_model = SentenceTransformer(EMBED_MODEL)
@@ -77,7 +71,7 @@ class InferenceChatBot(Resource):
             headers = {
                 'Content-Type': 'application/json'
             }
-            response = requests.post(OLLAMA_URL, headers=headers, data=json.dumps(payload))
+            response = requests.post(ollama_url, headers=headers, data=json.dumps(payload))
 
             if response.status_code == 200:
                 return make_response(jsonify(response.json()), 200)
@@ -105,7 +99,7 @@ class IMDBChatBot(Resource):
             user_message = request_data.get("message")
 
             chroma_client = chromadb.PersistentClient(
-                path=CHROMADB_PATH)
+                path=chroma_path)
 
             collection = chroma_client.get_collection(name="imdb_chatbot")
 
@@ -150,7 +144,7 @@ class IMDBChatBot(Resource):
             }
 
             headers = {"Content-Type": "application/json"}
-            response = requests.post(OLLAMA_URL, headers=headers, data=json.dumps(payload))
+            response = requests.post(ollama_url, headers=headers, data=json.dumps(payload))
 
 
             # Handle response
@@ -200,7 +194,7 @@ class GeminiIMDBChatBot(Resource):
                 )
 
             chroma_client = chromadb.PersistentClient(
-                path=CHROMADB_PATH
+                path=chroma_path
             )
             collection = chroma_client.get_or_create_collection(name="imdb_chatbot")
 
@@ -259,7 +253,7 @@ class GroqIMDBChatBot(Resource):
                 )
 
             chroma_client = chromadb.PersistentClient(
-                path=CHROMADB_PATH
+                path=chroma_path
             )
             collection = chroma_client.get_collection(name="imdb_chatbot")
 
@@ -311,16 +305,15 @@ class CreateIndex(Resource):
 
             file = request.files['file']
             collection_name = request.args.get("collection_name")  # FIXED
-            print(collection_name)
 
             if file.filename == '':
                 return make_response(jsonify({"error": "Empty file name."}), 400)
 
-            file_path = os.path.join(TMP_DIR, file.filename)
+            file_path = os.path.join(temp_dir, file.filename)
             file.save(file_path)
 
             db_handler = ChromaDBHandler(
-                db_path=CHROMADB_PATH,
+                db_path=chroma_path,
                 collection_name=str(collection_name))
 
             df = db_handler.load_and_process_csv(file_path)
@@ -343,7 +336,7 @@ class DeleteIndex(Resource):
                 return make_response(jsonify({"error": "Collection name is required."}), 400)
 
             db_handler = ChromaDBHandler(
-                db_path=CHROMADB_PATH,
+                db_path=chroma_path,
                 collection_name=collection_name)
 
             db_handler.chroma_client.delete_collection(name=collection_name)
@@ -357,7 +350,7 @@ class DeleteIndex(Resource):
 class GetCollections(Resource):
     def get(self):
         try:
-            db_handler = ChromaDBHandler(db_path=CHROMADB_PATH)
+            db_handler = ChromaDBHandler(db_path=chroma_path)
             collections = db_handler.get_all_collections()
 
             return make_response(jsonify({"collections": collections}), 200)
