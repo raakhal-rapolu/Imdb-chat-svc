@@ -1,7 +1,7 @@
 import streamlit as st
 import requests
 
-BACKEND_URL = "http://127.0.0.1:5000/imdb-chatbot-svc/api/v1/imdb-chatbot-svc/imdb-chat"  # Update this to match your Flask server URL
+BACKEND_URL = "http://127.0.0.1:5000/imdb-chatbot-svc/api/v1/imdb-chatbot-svc/imdb-chat"
 
 st.set_page_config(page_title="IMDb Chatbot", page_icon="🎥", layout="centered")
 
