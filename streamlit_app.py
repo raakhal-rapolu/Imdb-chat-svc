@@ -1,7 +1,12 @@
 import streamlit as st
 import requests
 
-BACKEND_URL = "http://127.0.0.1:5000/imdb-chatbot-svc/api/v1/imdb-chatbot-svc/imdb-chat"
+# Define backend URLs for different models
+BACKEND_URLS = {
+    "Ollama": "http://127.0.0.1:5000/imdb-chatbot-svc/api/v1/imdb-chatbot-svc/imdb-chat",
+    "Groq": "http://127.0.0.1:5000/imdb-chatbot-svc/api/v1/imdb-chatbot-svc/groq-imdb-chat",
+    "Gemini": "http://127.0.0.1:5000/imdb-chatbot-svc/api/v1/imdb-chatbot-svc/gemini-imdb-chat"
+}
 
 st.set_page_config(page_title="IMDb Chatbot", page_icon="🎥", layout="centered")
 
@@ -16,7 +21,7 @@ st.markdown(
             padding: 10px 20px;
             border-radius: 8px;
             box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px; /* Add space below the header */
+            margin-bottom: 20px;
         }
         .header-title {
             font-size: 24px;
@@ -28,19 +33,21 @@ st.markdown(
         }
         .hero-section {
             text-align: center;
-            margin-bottom: 30px; /* Add space below the hero section */
+            margin-bottom: 30px;
         }
     </style>
     <div class="header">
         <div class="header-title">🎬 IMDb</div>
-        <div class="dropdown-container">
-            <label for="model-select">Select Model: </label>
-            <select id="model-select" style="padding: 5px 10px; font-size: 16px; border-radius: 5px;">
-                <option value="Groq">Groq</option>
-                <option value="Gemini">Gemini</option>
-            </select>
-        </div>
     </div>
+    <script>
+        function set_model_selection(value) {
+            fetch('/_st_set_model', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ model: value })
+            });
+        }
+    </script>
     """,
     unsafe_allow_html=True,
 )
@@ -61,22 +68,27 @@ if "messages" not in st.session_state:
 
 st.markdown("<h3 style='text-align: center;'>🤖 Chat with IMDb Bot</h3>", unsafe_allow_html=True)
 
+# Display chat messages
 for sender, message in st.session_state.messages:
     with st.chat_message("user" if sender == "You" else "assistant"):
         st.markdown(f"*{sender}:* {message}")
 
+# Model selection dropdown
+selected_model = st.selectbox("Select Model:", options=["Groq llama-3.3-70b-versatile", "Gemini gemini-1.5-pro", "Ollama llama3.2"], index=1, key="model_selection")
+
+# User input field
 user_input = st.text_input("You:", key="user_input", placeholder="Ask about movies, actors, or ratings...")
 
 if st.button("Send 🎬"):
     if user_input:
-
         st.session_state.messages.append(("You", user_input))
 
-        try:
+        # Get the API endpoint based on selected model
+        backend_url = BACKEND_URLS.get(selected_model, BACKEND_URLS["Gemini"])
 
-            selected_model = st.session_state.get("model_selection", "Gemini")
+        try:
             response = requests.post(
-                BACKEND_URL,
+                backend_url,
                 json={"message": user_input, "model": selected_model}
             ).json()
             bot_response = response.get("response", "Sorry, I couldn't find that information.")
@@ -84,4 +96,5 @@ if st.button("Send 🎬"):
         except Exception as e:
             bot_response = f"⚠️ Error: {e}"
             st.session_state.messages.append(("IMDb Bot", bot_response))
+
         st.rerun()
