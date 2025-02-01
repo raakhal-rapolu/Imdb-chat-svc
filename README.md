@@ -27,7 +27,7 @@ poetry --version
 
 ### **2. Clone the Repository**
 ```sh
-git clone <repository_link>
+git clone https://github.com/raakhal-rapolu/Imdb-chat-svc.git
 cd imdb-chatbot-svc
 ```
 
@@ -67,8 +67,8 @@ GROQ_API_KEY=''
 ```
 3. **Set up local ChromaDB path**:
 ```sh
-export CHROMADB_PATH='imdb-chatbot-svc/chromadb_handler'
-export TMP_DIR='imdb-chatbot-svc/tmp'
+export CHROMADB_PATH=$(realpath "chromadb_handler")
+export TMP_DIR=$(realpath "tmp")
 ```
 4. **Load environment variables**:
 ```sh
@@ -90,6 +90,8 @@ poetry run task imdb-svc-backend
 ```sh
 poetry run task imdb-svc-frontend
 ```
+**Streamlit UI URL:**  
+[http://localhost:8501/](http://localhost:8501/)
 
 ---
 
