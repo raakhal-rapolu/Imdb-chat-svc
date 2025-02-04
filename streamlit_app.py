@@ -5,7 +5,9 @@ import requests
 BACKEND_URLS = {
     "Ollama llama3.2 + RAG": "http://127.0.0.1:5000/imdb-chatbot-svc/api/v1/imdb-chatbot-svc/imdb-chat",
     "Groq llama-3.3-70b-versatile + Hybrid Search + RAG": "http://127.0.0.1:5000/imdb-chatbot-svc/api/v1/imdb-chatbot-svc/groq-imdb-chat",
-    "Gemini gemini-1.5-pro + RAG": "http://127.0.0.1:5000/imdb-chatbot-svc/api/v1/imdb-chatbot-svc/gemini-imdb-chat"
+    "Gemini gemini-1.5-pro + RAG": "http://127.0.0.1:5000/imdb-chatbot-svc/api/v1/imdb-chatbot-svc/gemini-imdb-chat",
+    "Gemini + Intent Classifier+ Query Routing + RAG": "http://127.0.0.1:5000/imdb-chatbot-svc/api/v1/imdb-chatbot-svc/autogen-imdb-chat"
+
 }
 
 
@@ -75,7 +77,7 @@ for sender, message in st.session_state.messages:
         st.markdown(f"*{sender}:* {message}")
 
 # Model selection dropdown
-selected_model = st.selectbox("Select Model:", options=["Groq llama-3.3-70b-versatile + Hybrid Search + RAG", "Gemini gemini-1.5-pro + RAG", "Ollama llama3.2 + RAG"], index=1, key="model_selection")
+selected_model = st.selectbox("Select Model:", options=["Groq llama-3.3-70b-versatile + Hybrid Search + RAG", "Gemini gemini-1.5-pro + RAG", "Ollama llama3.2 + RAG", "Gemini + Intent Classifier+ Query Routing + RAG"], index=1, key="model_selection")
 
 # User input field
 user_input = st.text_input("You:", key="user_input", placeholder="Ask about movies, actors, or ratings...")
