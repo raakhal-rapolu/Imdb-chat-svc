@@ -15,8 +15,15 @@ from utils.constants import EMBED_MODEL, ollama_url, temp_dir, chroma_path
 from utils.gemini_handler import GeminiLLMHandler
 from utils.groq_custom_llm import GroqLLMHandler
 from webserver.api_models import inference_chat_api, create_index_parser, delete_index_model, inference_api_model
-from webserver.extensions import api
 from utils.retrieval_handler import RetrievalHandler
+
+from flask import request, jsonify, make_response
+from flask_restx import Resource
+from utils.intent_classifier import classify_query
+from utils.query_agents import sql_agent, vector_agent,execute_sql_query
+from webserver.extensions import api
+
+chat_namespace = api.namespace(name='imdb-autogen-chat', description="Autogen-powered IMDB chatbot")
 
 
 # Load sentence transformer model
@@ -147,7 +154,6 @@ class IMDBChatBot(Resource):
 
             headers = {"Content-Type": "application/json"}
             response = requests.post(ollama_url, headers=headers, data=json.dumps(payload))
-
 
             # Handle response
             if response.status_code == 200:
@@ -341,3 +347,42 @@ class GetCollections(Resource):
             return make_response(jsonify({"collections": collections}), 200)
         except Exception as e:
             return make_response(jsonify({"error": "Failed to fetch collections.", "details": str(e)}), 500)
+
+
+
+
+
+@chat_namespace.route("/autogen-imdb-chat")
+class AutoGenIMDBChatBot(Resource):
+    @api.expect(inference_chat_api)
+    def post(self):
+        try:
+            request_data = request.get_json()
+            user_message = request_data.get("message")
+
+            if not user_message:
+                return make_response(
+                    jsonify({"error": "Message field is required."}), 400
+                )
+
+            # Step 1: Classify the intent of the query (SQL or VECTOR)
+            intent = classify_query(user_message)
+
+            if intent == "SQL":
+                # Step 2: Generate and execute SQL query via AutoGen's SQL Agent
+                sql_query = sql_agent.generate_reply(messages=[{"role": "user", "content": user_message}])["content"].strip("```sql\n")
+                query_result = execute_sql_query([{"role": "user", "content": sql_query}])
+                return make_response(jsonify({"response": query_result}), 200)
+
+            elif intent == "VECTOR":
+                # Step 3: Retrieve vector-based results via AutoGen's Vector Agent
+                vector_response = vector_agent.generate_reply(messages=[{"role": "user", "content": user_message}])["content"]
+                return make_response(jsonify({"response": vector_response}), 200)
+
+            else:
+                return make_response(jsonify({"response": "Unable to classify the query."}), 400)
+
+        except Exception as e:
+            return make_response(
+                jsonify({"error": "An unexpected error occurred.", "details": str(e)}), 500
+            )

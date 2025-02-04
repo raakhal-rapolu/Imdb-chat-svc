@@ -1,13 +1,13 @@
 import chromadb
 import pandas as pd
 from sentence_transformers import SentenceTransformer
-from utils.constants import EMBED_MODEL
+from utils.constants import EMBED_MODEL, chroma_path
 
 
 class ChromaDBHandler:
     """Handles ChromaDB operations: indexing, querying, and deletion."""
 
-    def __init__(self, db_path, collection_name=None):
+    def __init__(self, db_path=chroma_path, collection_name=None):
 
         self.db_path = db_path
         self.collection_name = collection_name

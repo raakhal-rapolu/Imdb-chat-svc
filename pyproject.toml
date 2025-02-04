@@ -6,7 +6,8 @@ authors = ["raakhal-rapolu <raakhal.rapolu@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.12"
+python = ">=3.12,<3.14"
+autogen = "^0.7.3"
 streamlit = "^1.40.2"
 requests = "^2.32.3"
 flask = "^3.1.0"
@@ -24,6 +25,10 @@ google-generativeai = "^0.8.4"
 langchain = "^0.3.17"
 rank-bm25 = "^0.2.2"
 langchain-community = "^0.3.16"
+sqlalchemy = "^2.0.37"
+psycopg2 = "^2.9.10"
+autogen-agentchat = {version = ">=0.2,<1.0", extras = ["gemini", "lmm", "retrievechat"]}
+ag2 = {extras = ["gemini"], version = "^0.7.3"}
 
 [build-system]
 requires = ["poetry-core"]
@@ -33,4 +38,7 @@ build-backend = "poetry.core.masonry.api"
 [tool.taskipy.tasks]
 imdb-svc-backend = { cmd = "python app.py" }
 imdb-svc-frontend = { cmd = "streamlit run streamlit_app.py" }
+
+imdb-svc-database = { cmd = "python utils/autogen_imdb.py" }
+
 
