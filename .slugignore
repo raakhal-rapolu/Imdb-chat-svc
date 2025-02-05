@@ -1,0 +1,39 @@
+# Virtual environment (not needed in slug)
+.venv/
+venv/
+env/
+env.variables.app.sh
+
+# Cache and compiled files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.log
+
+# Local database and index files (should not be deployed)
+*.sqlite3
+*.db
+*.bin
+*.pickle
+
+# ChromaDB files (only needed locally, should be rebuilt if necessary)
+chromadb_handler/chroma.sqlite3
+chromadb_handler/f1df7b5e-7f2e-41de-a394-4f8f743f439d/
+
+# Temporary and history files
+tmp/
+history.txt
+*.csv
+
+# Poetry & package manager cache
+poetry.lock
+pip-wheel-metadata/
+
+# Test and documentation files
+tests/
+docs/
+*.md
+
+
+# Any other large assets that are not needed in the app
