@@ -1,9 +1,11 @@
 [tool.poetry]
-name = "imdb-chatbot-svc"
+name = "Imdb-chatbot-svc"
 version = "0.1.0"
 description = ""
 authors = ["raakhal-rapolu <raakhal.rapolu@gmail.com>"]
 readme = "README.md"
+package-mode = false
+
 
 [tool.poetry.dependencies]
 python = ">=3.12,<3.14"
