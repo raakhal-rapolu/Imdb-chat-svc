@@ -27,7 +27,6 @@ history.txt
 *.csv
 
 # Poetry & package manager cache
-poetry.lock
 pip-wheel-metadata/
 
 # Test and documentation files
