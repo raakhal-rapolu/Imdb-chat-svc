@@ -29,6 +29,7 @@ sqlalchemy = "^2.0.37"
 psycopg2 = "^2.9.10"
 autogen-agentchat = {version = ">=0.2,<1.0", extras = ["gemini", "lmm", "retrievechat"]}
 ag2 = {extras = ["gemini"], version = "^0.7.3"}
+gunicorn = "^23.0.0"
 
 [build-system]
 requires = ["poetry-core"]
