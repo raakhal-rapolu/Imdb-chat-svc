@@ -99,7 +99,7 @@ class RetrievalHandler:
         """
         if not self.keyword_retriever:
             return []
-        docs = self.keyword_retriever.get_relevant_documents(query)
+        docs = self.keyword_retriever.invoke(query)
         return docs[:top_k]
 
     def convert_document(self, doc):

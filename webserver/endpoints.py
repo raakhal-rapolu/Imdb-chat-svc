@@ -20,7 +20,7 @@ from utils.retrieval_handler import RetrievalHandler
 from flask import request, jsonify, make_response
 from flask_restx import Resource
 from utils.intent_classifier import classify_query
-from utils.query_agents import sql_agent, vector_agent,execute_sql_query
+from utils.query_agents import sql_agent, vector_agent,execute_sql_query, execute_vector_search
 from webserver.extensions import api
 
 chat_namespace = api.namespace(name='imdb-autogen-chat', description="Autogen-powered IMDB chatbot")
@@ -367,17 +367,65 @@ class AutoGenIMDBChatBot(Resource):
 
             # Step 1: Classify the intent of the query (SQL or VECTOR)
             intent = classify_query(user_message)
+            status = None
 
             if intent == "SQL":
+                print("im here at sql")
                 # Step 2: Generate and execute SQL query via AutoGen's SQL Agent
                 sql_query = sql_agent.generate_reply(messages=[{"role": "user", "content": user_message}])["content"].strip("```sql\n")
-                query_result = execute_sql_query([{"role": "user", "content": sql_query}])
-                return make_response(jsonify({"response": query_result}), 200)
+                query_result, status = execute_sql_query([{"role": "user", "content": sql_query}])
+                print(status)
+                if status == 200:
+                    return make_response(jsonify({"response": query_result}), 200)
 
-            elif intent == "VECTOR":
-                # Step 3: Retrieve vector-based results via AutoGen's Vector Agent
-                vector_response = vector_agent.generate_reply(messages=[{"role": "user", "content": user_message}])["content"]
-                return make_response(jsonify({"response": vector_response}), 200)
+            if intent == "VECTOR" or status == 202:
+                #
+                print("im here at intent")
+                #
+                # # Step 3: Retrieve vector-based results via AutoGen's Vector Agent
+                # # context = execute_vector_search( [{"role": "user", "content": user_message}])
+                # # print(context)
+                # vector_response = vector_agent.generate_reply(messages=[{"role": "user", "content": user_message}])["content"]
+                # return make_response(jsonify({"response": vector_response}), 200)
+
+                chroma_client = chromadb.PersistentClient(
+                    path=chroma_path
+                )
+                collection = chroma_client.get_or_create_collection(name="imdb_chatbot")
+
+                query_embedding = embedding_model.encode(user_message).tolist()
+                results = collection.query(
+                    query_embeddings=[query_embedding],
+                    n_results=10
+                )
+
+                if not results["documents"] or not results["documents"][0]:
+                    return make_response(jsonify({"response": "No relevant movies found."}), 200)
+
+                context = "\n\n".join([
+                    f"Title: {doc['title']}\n"
+                    f"Year: {doc['year']}\n"
+                    f"Certificate: {doc['certificate']}\n"
+                    f"Runtime: {doc['runtime']}\n"
+                    f"Genre: {doc['genre']}\n"
+                    f"IMDB Rating: {doc['rating']}\n"
+                    f"Overview: {doc['overview']}\n"
+                    f"Meta Score: {doc['meta_score']}\n"
+                    f"Director: {doc['director']}\n"
+                    f"Stars: {(doc['stars'])}\n"
+                    f"Number of Votes: {doc['votes']}\n"
+                    f"Gross Revenue: {doc['gross']}"
+                    for doc in results["metadatas"][0]
+                ])
+                print(context)
+
+                prompt = prompt_reader.load_prompts()["imdb_chat_prompt"].format(user_message=user_message,
+                                                                                 context=context)
+
+                llm_handler = GeminiLLMHandler()
+                gemini_response = llm_handler.gemini_api_call(prompt)
+
+                return make_response(jsonify({"response": gemini_response}), 200)
 
             else:
                 return make_response(jsonify({"response": "Unable to classify the query."}), 400)
