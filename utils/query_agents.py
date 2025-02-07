@@ -3,7 +3,7 @@ import sqlite3
 from autogen import AssistantAgent
 
 from chromadb_handler.chromadb_handler import ChromaDBHandler
-from database.database import get_db_connection
+# from database.database import get_db_connection
 from utils.constants import gemini_api_key, chroma_path, groq_api_key
 
 # Connect to the SQLite database
@@ -101,7 +101,7 @@ vector_agent = AssistantAgent(
 
 def execute_sql_query(messages):
     query = messages[-1]["content"]  # Extract latest query
-    conn = get_db_connection()
+    conn = sqlite3.connect('imdb_movies.db')
     cur = conn.cursor()
     try:
         cur.execute(query)
